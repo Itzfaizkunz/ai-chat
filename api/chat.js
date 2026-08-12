@@ -1,6 +1,6 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 
-export default async function handler(req, res) {
+module.exports = async (req, res) => {
   // Pengaturan CORS
   res.setHeader('Access-Control-Allow-Credentials', true);
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -14,9 +14,9 @@ export default async function handler(req, res) {
     return res.status(200).end();
   }
 
-  // Jika diakses lewat browser (GET)
+  // Tes via Browser (GET)
   if (req.method === 'GET') {
-    return res.status(200).json({ message: 'Backend AI Chat Vercel Aktif!' });
+    return res.status(200).json({ status: 'API Chat Gemini Aktif' });
   }
 
   if (req.method !== 'POST') {
@@ -32,18 +32,18 @@ export default async function handler(req, res) {
 
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
-      return res.status(500).json({ error: 'GEMINI_API_KEY belum dikonfigurasi di Vercel Environment Variables' });
+      return res.status(500).json({ error: 'GEMINI_API_KEY belum dikonfigurasi di Environment Variables Vercel' });
     }
 
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
     const result = await model.generateContent(message);
-    const responseText = result.response.text();
+    const text = result.response.text();
 
-    return res.status(200).json({ reply: responseText });
+    return res.status(200).json({ reply: text });
   } catch (error) {
     console.error('Error Gemini API:', error);
-    return res.status(500).json({ error: 'Gagal memproses pesan AI', details: error.message });
+    return res.status(500).json({ error: 'Gagal memproses AI', details: error.message });
   }
-}
+};
