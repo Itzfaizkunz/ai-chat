@@ -1,38 +1,34 @@
-const { GoogleGenerativeAI } = require('@google/generative-ai');
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
-module.exports = async (req, res) => {
-  // Pengaturan CORS
+export default async function handler(req, res) {
+  // Header CORS
   res.setHeader('Access-Control-Allow-Credentials', true);
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
-  res.setHeader(
-    'Access-Control-Allow-Headers',
-    'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
-  );
+  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,POST');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
 
-  // Tes via Browser (GET)
+  // Cek status via GET di browser
   if (req.method === 'GET') {
     return res.status(200).json({ status: 'API Chat Gemini Aktif' });
   }
 
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method tidak diizinkan. Gunakan POST.' });
+    return res.status(405).json({ error: 'Gunakan method POST' });
   }
 
   try {
     const { message } = req.body || {};
-
     if (!message) {
       return res.status(400).json({ error: 'Pesan tidak boleh kosong' });
     }
 
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
-      return res.status(500).json({ error: 'GEMINI_API_KEY belum dikonfigurasi di Environment Variables Vercel' });
+      return res.status(500).json({ error: 'GEMINI_API_KEY belum dipasang di Vercel Environment Variables' });
     }
 
     const genAI = new GoogleGenerativeAI(apiKey);
@@ -43,7 +39,6 @@ module.exports = async (req, res) => {
 
     return res.status(200).json({ reply: text });
   } catch (error) {
-    console.error('Error Gemini API:', error);
     return res.status(500).json({ error: 'Gagal memproses AI', details: error.message });
   }
-};
+}
