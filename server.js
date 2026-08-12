@@ -6,13 +6,13 @@ import { GoogleGenAI } from '@google/genai';
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 5000;
 
 app.use(cors());
 app.use(express.json());
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
+// Endpoint utama
 app.post('/api/chat', async (req, res) => {
   try {
     const { message } = req.body;
@@ -35,6 +35,10 @@ app.post('/api/chat', async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`Server berjalan di port ${PORT}`);
+// Endpoint default untuk mengecek apakah server aktif
+app.get('/', (req, res) => {
+  res.send('Backend AI Chat Vercel berjalan!');
 });
+
+// PENTING UNTUK VERCEL: Ekspor app Express sebagai default
+export default app;
